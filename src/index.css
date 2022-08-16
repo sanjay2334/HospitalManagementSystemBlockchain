@@ -11,3 +11,25 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.videoTag{
+	object-fit: cover;
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	top: 0;
+	overflow: hidden;
+	left: 0;
+	z-index: -1;
+}
+
+.hov:hover{
+  background-image: linear-gradient(#C1C2C4,#666D6F);
+}
+
+
+  
