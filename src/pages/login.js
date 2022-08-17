@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
-import { faAt } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import { validEmail,validPassword } from "./regEX";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { db } from "../firebase/firebase-config";
 
 const Login = () => {
 
@@ -8,20 +10,7 @@ const Login = () => {
         email:"",password:""
     })
 
-    const [error,setError] = useState('')
-
-    function isValidEmail(email){
-        return /\S+@\S+\.\S+/.test(formdata.email);
-    }
-
     const handleChange = event => {
-        if(!isValidEmail(event.target.value)){
-            setError('Invalid Email')
-        }
-        else{
-            setError(null)
-        }
-
         setFormdata(prevData =>{
             return{
                 ...prevData,
@@ -30,8 +19,19 @@ const Login = () => {
         })
     }
 
-    function Submit(){
-        console.log(formdata)
+    const Submit = async()=>{
+        try {
+            const user = await signInWithEmailAndPassword(
+                db,
+                formdata.email,
+                formdata.password
+            )
+            alert('Logged in succesfully')  
+            console.log(user) 
+        } catch (error) {
+            console.log(error)
+            alert(error.message)
+        }
     }
 
     return (

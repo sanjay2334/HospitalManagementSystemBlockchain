@@ -1,27 +1,23 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { db } from "../firebase/firebase-config";
+import {createUserWithEmailAndPassword} from 'firebase/auth'
+import { validEmail, validPassword } from "./regEX";
 
 const Register = () => {
+
+    const navigate = useNavigate()
 
     const [regFormData,setRegFormData] = useState({
         fullname:"",email:"",password:"",confirmPassword:""
     })
-    
-    const [passerr,setPasserr] = useState('')   
-    const [error,setError] = useState('')
 
-    function isValidEmail(email){
-        return /\S+@\S+\.\S+/.test(regFormData.email);
-    }
-
+    const [mailerr,setMailerr] = useState(false)
+    const [passerr,setPasserr] = useState(false)
+    const [empty,setempty] = useState(false)
+    const [pass,setPass] = useState(false)
 
     const handleChange = event =>{
-        if(!isValidEmail(event.target.value)){
-            setError('email is invalid')
-            alert(error);
-        }else{
-            setError(null)
-        }
         setRegFormData(prevdata=>{
             return{
                 ...prevdata,
@@ -33,36 +29,27 @@ const Register = () => {
 
     const submit= async ()=>{
         if(regFormData.fullname === "" ,regFormData.email ==="",regFormData.password==="",regFormData.confirmPassword==="" ){
-            alert("All feilds required")
+            setempty(true)
         }else  if(regFormData.password !== regFormData.confirmPassword){
-            alert("Password doesn't match")
-        }
-        else{
+            setPass(true)
+        }else if(!validEmail.test(regFormData.email)){
+            setMailerr(true)
+        }else if(!validPassword.test(regFormData.password)){
+            setPasserr(true)
+        }else{
             try{
-            // const user = await createUserWithEmailAndPassword(
-            //     auth,
-            //     regFormData.email,
-            //     regFormData.password)
-            // console.log(user)
+            const user = await createUserWithEmailAndPassword(
+                db,
+                regFormData.email,
+                regFormData.password)
+            console.log(user)
             console.log(regFormData)
-            // navigate.push('/login')
             alert("User Register");
-            // window.location.reload(false)
+            navigate('/login',{replace:true})
         }catch(error){
             console.log(error.message);
             alert(error.message)
         }
-        }
-    }
-
-
-    const Submit = ()=>{
-        if(regFormData.fullname==="",regFormData.email==="",regFormData.password="",regFormData.confirmPassword===''){
-            alert("All feilds are required")
-        }// }else if(regForm.password !== regForm.confirmPassword){
-        //     alert("Password is not matching")
-        else {
-            console.log(regFormData)
         }
     }
 
@@ -71,6 +58,7 @@ const Register = () => {
             <form>
                 <div className="bg-white rounded shadow-sm w-96 p-6">
                     <h1 className="text-center text-5xl mb-10 font-sans font-semibold text-gray-600">Register</h1>
+                    {empty ? <p className="text-red-700 font-bold text-center">All feilds are required</p> :<p></p>}
                     <label className="text-gray-700">Full Name</label>
                     <input 
                         type='fullname' 
@@ -88,7 +76,8 @@ const Register = () => {
                         name="email"
                         onChange={handleChange}
                         value={regFormData.email}
-                     />   
+                     />
+                     {mailerr ? <p className="text-red-700 font-bold text-center">Email is invalid</p> :<p></p>}
                     <label className="text-gray-700">Password</label>
                     <input 
                         type='Password' 
@@ -98,6 +87,7 @@ const Register = () => {
                         onChange={handleChange}
                         value={regFormData.password}
                     />
+                    {passerr ? <p className="text-red-700 font-bold text-center">Password is not strong</p> :<p></p>}
                     <label className="text-gray-700">Confirm Password</label>
                     <input 
                         type='Password' 
@@ -107,6 +97,7 @@ const Register = () => {
                         onChange={handleChange}
                         value={regFormData.confirmPassword}
                     />
+                    {pass ?<p className="text-red-700 font-bold text-center">Password doesn't match</p>:<p></p>}
                     <button type="button" className="bg-dim-grey w-full text-gray-100 py-2 rounded hover:bg-silver-sand transition-colors" 
                         onClick={submit}
                     >Login</button>
